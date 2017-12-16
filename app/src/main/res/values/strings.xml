@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ADB Over Network</string>
+    <string name="disabled">Disabled</string>
+    <string name="enabled">Enabled</string>
+    <string name="open_source">Open Source</string>
+    <string name="about">About</string>
+    <string name="about_text">Copyright © 2017 Yaerin All rights reserved.</string>
+    <string name="help">Must be rooted :)\n</string>
+    <string name="help_text">Run follows command on your desktop:\n\nadb connect %s:%s\nadb devices</string>
+    <string name="ok">OK</string>
+</resources>
