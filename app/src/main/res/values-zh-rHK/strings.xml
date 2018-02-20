@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">網絡ADB調試</string>
+    <string name="disabled">禁用</string>
+    <string name="enabled">啓用</string>
+    <string name="open_source">開源地址</string>
+    <string name="about">關於</string>
+    <string name="about_text">Copyright © 2017 Yaerin All rights reserved.</string>
+    <string name="help">必須授予root權限 :)\n</string>
+    <string name="help_text">在電腦上運行下面的命令：\n\nadb connect %s:%s\nadb devices</string>
+    <string name="ok">確定</string>
+    <string name="donate">捐贈</string>
+</resources>

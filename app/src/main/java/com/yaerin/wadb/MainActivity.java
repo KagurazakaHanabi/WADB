@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Created by yaerin on 12/7/17.
@@ -22,35 +24,71 @@ import java.io.IOException;
 
 public class MainActivity extends Activity {
 
+    private static final String TAG = "MainActivity";
+
+    private Switch mSwitch;
+    private TextView mTextView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.state).setOnClickListener((v) -> {
+        mSwitch = findViewById(R.id.state);
+        mTextView = findViewById(R.id.textView);
+        mSwitch.setOnClickListener(v -> {
             try {
-                String ip = getAddress();
-                String port = getPort();
                 Process proc = Runtime.getRuntime().exec("su");
                 DataOutputStream os = new DataOutputStream(proc.getOutputStream());
-                if (((Switch) v).isChecked()) {
-                    os.writeBytes("setprop service.adb.tcp.port 5555\n");
-                    os.writeBytes("stop adbd\n");
-                    os.writeBytes("start adbd\n");
+                if (mSwitch.isChecked()) {
+                    os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getPort()));
                 } else {
                     os.writeBytes("setprop service.adb.tcp.port -1\n");
-                    os.writeBytes("stop adbd\n");
-                    os.writeBytes("start adbd\n");
                 }
+                os.writeBytes("stop adbd\n");
+                os.writeBytes("start adbd\n");
                 os.flush();
-                ((Switch) v).setText(((Switch) v).isChecked() ? R.string.enabled : R.string.disabled);
-                ((TextView) findViewById(R.id.textView)).setText(((Switch) v).isChecked() ?
-                        getString(R.string.help) + getString(R.string.help_text, ip, port) :
-                        getString(R.string.help)
-                );
+                setChecked(mSwitch.isChecked());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new Thread(() -> {
+            try {
+                Process proc = Runtime.getRuntime().exec("su");
+                DataOutputStream os = new DataOutputStream(proc.getOutputStream());
+                os.writeBytes("getprop service.adb.tcp.port\n");
+                os.flush();
+                os.close();
+                InputStreamReader reader = new InputStreamReader(proc.getInputStream());
+                char[] chars = new char[5];
+                reader.read(chars);
+                reader.close();
+                String result = new String(chars);
+                runOnUiThread(() -> {
+                    if (!result.matches("[0-9]+\\n")) {
+                        setChecked(false);
+                    } else {
+                        setChecked(!result.contains("-1"));
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void setChecked(boolean checked) {
+        mSwitch.setChecked(checked);
+        mSwitch.setText(checked ? R.string.enabled : R.string.disabled);
+        mTextView.setText(checked ?
+                getString(R.string.help) + getString(R.string.help_text, getAddress(), getPort()) :
+                getString(R.string.help)
+        );
     }
 
     private String getPort() {
@@ -59,15 +97,22 @@ public class MainActivity extends Activity {
 
     private String getAddress() {
         WifiManager manager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        if (!manager.isWifiEnabled()) {
-            manager.setWifiEnabled(true);
-        }
         WifiInfo info = manager.getConnectionInfo();
         int i = info.getIpAddress();
         return (i & 0xFF) + "." +
                 ((i >> 8) & 0xFF) + "." +
                 ((i >> 16) & 0xFF) + "." +
                 ((i >> 24) & 0xFF);
+    }
+
+    private void showDonateDialog() {
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(R.drawable.mm_reward_qrcode_1519050412694);
+        new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_Alert)
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
+                .setView(iv)
+                .create()
+                .show();
     }
 
     @Override
@@ -81,10 +126,10 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_Alert)
                 .setTitle(R.string.about)
                 .setMessage(R.string.about_text)
-                .setNegativeButton(R.string.open_source, (p1, p2) ->
+                .setNegativeButton(R.string.open_source, (dialog, which) ->
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Yaerin/WADB"))))
-                .setPositiveButton(R.string.ok, (p1, p2) ->
-                        p1.dismiss())
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
+                .setNeutralButton(R.string.donate, (dialog, which) -> showDonateDialog())
                 .create()
                 .show();
         return true;

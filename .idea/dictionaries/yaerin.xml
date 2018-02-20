@@ -2,7 +2,10 @@
   <dictionary name="yaerin">
     <words>
       <w>adbd</w>
+      <w>getprop</w>
+      <w>proc</w>
       <w>setprop</w>
+      <w>wadb</w>
     </words>
   </dictionary>
 </component>
