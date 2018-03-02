@@ -2,10 +2,11 @@ package com.yaerin.wadb;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
@@ -16,7 +17,10 @@ import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+
+import static com.yaerin.wadb.App.getIpAddress;
+import static com.yaerin.wadb.App.getServicePort;
+import static com.yaerin.wadb.App.isActivated;
 
 /**
  * Created by yaerin on 12/7/17.
@@ -29,6 +33,8 @@ public class MainActivity extends Activity {
     private Switch mSwitch;
     private TextView mTextView;
 
+    private StateReceiver mReceiver;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +46,7 @@ public class MainActivity extends Activity {
                 Process proc = Runtime.getRuntime().exec("su");
                 DataOutputStream os = new DataOutputStream(proc.getOutputStream());
                 if (mSwitch.isChecked()) {
-                    os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getPort()));
+                    os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getServicePort()));
                 } else {
                     os.writeBytes("setprop service.adb.tcp.port -1\n");
                 }
@@ -52,67 +58,20 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         });
+        mReceiver = new StateReceiver();
+        registerReceiver(mReceiver, new IntentFilter("com.yaerin.intent.ADB_STATE"));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        new Thread(() -> {
-            try {
-                Process proc = Runtime.getRuntime().exec("su");
-                DataOutputStream os = new DataOutputStream(proc.getOutputStream());
-                os.writeBytes("getprop service.adb.tcp.port\n");
-                os.flush();
-                os.close();
-                InputStreamReader reader = new InputStreamReader(proc.getInputStream());
-                char[] chars = new char[5];
-                reader.read(chars);
-                reader.close();
-                String result = new String(chars);
-                runOnUiThread(() -> {
-                    if (!result.matches("[0-9]+\\n")) {
-                        setChecked(false);
-                    } else {
-                        setChecked(!result.contains("-1"));
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        setChecked(isActivated());
     }
 
-    private void setChecked(boolean checked) {
-        mSwitch.setChecked(checked);
-        mSwitch.setText(checked ? R.string.enabled : R.string.disabled);
-        mTextView.setText(checked ?
-                getString(R.string.help) + getString(R.string.help_text, getAddress(), getPort()) :
-                getString(R.string.help)
-        );
-    }
-
-    private String getPort() {
-        return "5555";
-    }
-
-    private String getAddress() {
-        WifiManager manager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        WifiInfo info = manager.getConnectionInfo();
-        int i = info.getIpAddress();
-        return (i & 0xFF) + "." +
-                ((i >> 8) & 0xFF) + "." +
-                ((i >> 16) & 0xFF) + "." +
-                ((i >> 24) & 0xFF);
-    }
-
-    private void showDonateDialog() {
-        ImageView iv = new ImageView(this);
-        iv.setImageResource(R.drawable.mm_reward_qrcode_1519050412694);
-        new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
-                .setView(iv)
-                .create()
-                .show();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
     @Override
@@ -133,5 +92,32 @@ public class MainActivity extends Activity {
                 .create()
                 .show();
         return true;
+    }
+
+    private void setChecked(boolean checked) {
+        mSwitch.setChecked(checked);
+        mSwitch.setText(checked ? R.string.enabled : R.string.disabled);
+        mTextView.setText(checked ?
+                getString(R.string.help) + getString(R.string.help_text, getIpAddress(this), getServicePort()) :
+                getString(R.string.help)
+        );
+    }
+
+    private void showDonateDialog() {
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(R.drawable.mm_reward_qrcode_1519050412694);
+        new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_Alert)
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
+                .setView(iv)
+                .create()
+                .show();
+    }
+
+    private class StateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setChecked(isActivated());
+        }
     }
 }
