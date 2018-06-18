@@ -1,24 +1,18 @@
 package com.yaerin.wadb;
 
-import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiManager;
-
-import com.yaerin.support.util.Crashlytics;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Locale;
 
-public class App extends Application {
+import static android.content.Context.WIFI_SERVICE;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Thread.setDefaultUncaughtExceptionHandler(new Crashlytics(this));
-    }
+class Utilities {
 
-    public static boolean isActivated() {
+    static boolean isActivated() {
         try {
             Process proc = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(proc.getOutputStream());
@@ -38,22 +32,19 @@ public class App extends Application {
         }
     }
 
-    public static String getIpAddress(Context context) {
-        try {
-            int i = ((WifiManager) context.getApplicationContext()
-                    .getSystemService(WIFI_SERVICE))
-                    .getConnectionInfo()
-                    .getIpAddress();
-            return (i & 0xFF) + "." +
-                    ((i >> 8) & 0xFF) + "." +
-                    ((i >> 16) & 0xFF) + "." +
-                    ((i >> 24) & 0xFF);
-        } catch (Exception e) {
+    static String getIpAddress(Context context) {
+        WifiManager wm = ((WifiManager) context.getApplicationContext()
+                .getSystemService(WIFI_SERVICE));
+        if (wm != null) {
+            int i = wm.getConnectionInfo().getIpAddress();
+            return String.format(Locale.getDefault(), "%d.%d.%d.%d",
+                    i & 0xFF, (i >> 8) & 0xFF, (i >> 16) & 0xFF, (i >> 24) & 0xFF);
+        } else {
             return "0.0.0.0";
         }
     }
 
-    public static String getServicePort() {
+    static String getServicePort() {
         return "5555";
     }
 }

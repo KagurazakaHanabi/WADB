@@ -11,19 +11,17 @@
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
         android:background="@color/colorPrimary"
-        android:paddingEnd="16dp"
+        android:checked="false"
         android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/disabled"
-        android:checked="false"/>
+        android:theme="@android:style/Theme.Material" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/help"
-        android:theme="@android:style/Theme.Material.Light"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp"/>
+        android:padding="16dp"
+        android:text="@string/help" />
 
 </LinearLayout>

@@ -11,24 +11,21 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import static com.yaerin.wadb.App.getIpAddress;
-import static com.yaerin.wadb.App.getServicePort;
-import static com.yaerin.wadb.App.isActivated;
+import static com.yaerin.wadb.Utilities.getIpAddress;
+import static com.yaerin.wadb.Utilities.getServicePort;
+import static com.yaerin.wadb.Utilities.isActivated;
 
 /**
  * Created by yaerin on 12/7/17.
  */
 
 public class MainActivity extends Activity {
-
-    private static final String TAG = "MainActivity";
 
     private Switch mSwitch;
     private TextView mTextView;
@@ -70,8 +67,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -88,7 +85,6 @@ public class MainActivity extends Activity {
                 .setNegativeButton(R.string.open_source, (dialog, which) ->
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Yaerin/WADB"))))
                 .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
-                .setNeutralButton(R.string.donate, (dialog, which) -> showDonateDialog())
                 .create()
                 .show();
         return true;
@@ -101,16 +97,6 @@ public class MainActivity extends Activity {
                 getString(R.string.help) + getString(R.string.help_text, getIpAddress(this), getServicePort()) :
                 getString(R.string.help)
         );
-    }
-
-    private void showDonateDialog() {
-        ImageView iv = new ImageView(this);
-        iv.setImageResource(R.drawable.mm_reward_qrcode_1519050412694);
-        new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.cancel())
-                .setView(iv)
-                .create()
-                .show();
     }
 
     private class StateReceiver extends BroadcastReceiver {

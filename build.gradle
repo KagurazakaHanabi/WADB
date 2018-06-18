@@ -5,12 +5,9 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven {
-            url 'http://maven.yaerin.com/repository/maven-releases/'
-        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-alpha03'
+        classpath 'com.android.tools.build:gradle:3.2.0-alpha15'
         
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -22,9 +19,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url 'http://maven.yaerin.com/repository/maven-releases/'
-        }
     }
 }
 

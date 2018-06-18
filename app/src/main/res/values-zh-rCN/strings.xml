@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">网络ADB调试</string>
-    <string name="disabled">禁用</string>
-    <string name="enabled">启用</string>
-    <string name="open_source">开源地址</string>
+    <string name="disabled">已禁用</string>
+    <string name="enabled">已启用</string>
+    <string name="open_source">开源仓库</string>
     <string name="about">关于</string>
-    <string name="about_text">Copyright © 2017 Yaerin All rights reserved.</string>
-    <string name="help">必须授予root权限 :)\n</string>
+    <string name="about_text">Copyright © 2017&#8211;2018 Yaerin All rights reserved.</string>
+    <string name="help">此程序需要超级用户权限，请确保您的设备已破解ROOT授权。 :)\n</string>
     <string name="help_text">在电脑上运行下面的命令：\n\nadb connect %s:%s\nadb devices</string>
     <string name="ok">确定</string>
     <string name="donate">捐赠</string>

@@ -1,20 +1,20 @@
 package com.yaerin.wadb;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Handler;
 import android.service.quicksettings.Tile;
-import android.support.annotation.RequiresApi;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import static com.yaerin.wadb.App.getIpAddress;
-import static com.yaerin.wadb.App.getServicePort;
-import static com.yaerin.wadb.App.isActivated;
+import static com.yaerin.wadb.Utilities.getIpAddress;
+import static com.yaerin.wadb.Utilities.getServicePort;
+import static com.yaerin.wadb.Utilities.isActivated;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
+@TargetApi(Build.VERSION_CODES.N)
 public class TileService extends android.service.quicksettings.TileService {
 
     @Override
