@@ -10,4 +10,5 @@
     <string name="help_text">Run follows command on your desktop:\n\nadb connect %s:%s\nadb devices</string>
     <string name="ok">OK</string>
     <string name="donate">Donate</string>
+    <string name="auto_run">Auto run</string>
 </resources>

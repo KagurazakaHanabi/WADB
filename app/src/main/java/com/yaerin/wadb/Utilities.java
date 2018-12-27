@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
@@ -11,6 +12,9 @@ import java.util.Locale;
 import static android.content.Context.WIFI_SERVICE;
 
 class Utilities {
+
+    static final String CONFIG_KEY_AUTO_RUN = "auto_run";
+    static final String INTENT_ACTION_ADB_STATE = "com.yaerin.intent.ADB_STATE";
 
     static boolean isActivated() {
         try {
@@ -46,5 +50,30 @@ class Utilities {
 
     static String getServicePort() {
         return "5555";
+    }
+
+    static boolean configManager(Context context, String key, boolean value, boolean isGet) {
+        File file = new File(context.getExternalFilesDir(null) + "/" + key);
+        if (isGet) return file.exists();
+        else return value ? file.mkdirs() : file.delete();
+    }
+
+    static boolean setWADBState(boolean isEnabled) {
+        try {
+            Process proc = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(proc.getOutputStream());
+            if (isEnabled) {
+                os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getServicePort()));
+            } else {
+                os.writeBytes("setprop service.adb.tcp.port -1\n");
+            }
+            os.writeBytes("stop adbd\n");
+            os.writeBytes("start adbd\n");
+            os.flush();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

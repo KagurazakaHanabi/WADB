@@ -14,12 +14,13 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import static com.yaerin.wadb.Utilities.CONFIG_KEY_AUTO_RUN;
+import static com.yaerin.wadb.Utilities.INTENT_ACTION_ADB_STATE;
+import static com.yaerin.wadb.Utilities.configManager;
 import static com.yaerin.wadb.Utilities.getIpAddress;
 import static com.yaerin.wadb.Utilities.getServicePort;
 import static com.yaerin.wadb.Utilities.isActivated;
+import static com.yaerin.wadb.Utilities.setWADBState;
 
 /**
  * Created by yaerin on 12/7/17.
@@ -27,7 +28,7 @@ import static com.yaerin.wadb.Utilities.isActivated;
 
 public class MainActivity extends Activity {
 
-    private Switch mSwitch;
+    private Switch mSwitch, mAutoRunSwitch;
     private TextView mTextView;
 
     private StateReceiver mReceiver;
@@ -37,32 +38,23 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSwitch = findViewById(R.id.state);
+        mAutoRunSwitch = findViewById(R.id.autoRun);
         mTextView = findViewById(R.id.textView);
         mSwitch.setOnClickListener(v -> {
-            try {
-                Process proc = Runtime.getRuntime().exec("su");
-                DataOutputStream os = new DataOutputStream(proc.getOutputStream());
-                if (mSwitch.isChecked()) {
-                    os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getServicePort()));
-                } else {
-                    os.writeBytes("setprop service.adb.tcp.port -1\n");
-                }
-                os.writeBytes("stop adbd\n");
-                os.writeBytes("start adbd\n");
-                os.flush();
+            if (setWADBState(mSwitch.isChecked()))
                 setChecked(mSwitch.isChecked());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         });
+        mAutoRunSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                configManager(MainActivity.this, CONFIG_KEY_AUTO_RUN, isChecked, false));
         mReceiver = new StateReceiver();
-        registerReceiver(mReceiver, new IntentFilter("com.yaerin.intent.ADB_STATE"));
+        registerReceiver(mReceiver, new IntentFilter(INTENT_ACTION_ADB_STATE));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setChecked(isActivated());
+        mAutoRunSwitch.setChecked(configManager(this, CONFIG_KEY_AUTO_RUN, false, true));
     }
 
     @Override

@@ -7,12 +7,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.service.quicksettings.Tile;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import static com.yaerin.wadb.Utilities.INTENT_ACTION_ADB_STATE;
 import static com.yaerin.wadb.Utilities.getIpAddress;
-import static com.yaerin.wadb.Utilities.getServicePort;
 import static com.yaerin.wadb.Utilities.isActivated;
+import static com.yaerin.wadb.Utilities.setWADBState;
 
 @TargetApi(Build.VERSION_CODES.N)
 public class TileService extends android.service.quicksettings.TileService {
@@ -31,23 +29,10 @@ public class TileService extends android.service.quicksettings.TileService {
     public void onClick() {
         getQsTile().setState(Tile.STATE_UNAVAILABLE);
         getQsTile().updateTile();
-        try {
-            Process proc = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(proc.getOutputStream());
-            if (!isActivated()) {
-                os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getServicePort()));
-            } else {
-                os.writeBytes("setprop service.adb.tcp.port -1\n");
-            }
-            os.writeBytes("stop adbd\n");
-            os.writeBytes("start adbd\n");
-            os.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setWADBState(!isActivated());
         new Handler().postDelayed(() -> {
             updateTile();
-            sendBroadcast(new Intent("com.yaerin.intent.ADB_STATE"));
+            sendBroadcast(new Intent(INTENT_ACTION_ADB_STATE));
         }, 500);
     }
 
