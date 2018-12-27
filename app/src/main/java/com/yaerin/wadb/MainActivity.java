@@ -6,21 +6,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import static com.yaerin.wadb.Utilities.CONFIG_KEY_AUTO_RUN;
 import static com.yaerin.wadb.Utilities.INTENT_ACTION_ADB_STATE;
-import static com.yaerin.wadb.Utilities.configManager;
+import static com.yaerin.wadb.Utilities.PREF_AUTO_RUN;
 import static com.yaerin.wadb.Utilities.getIpAddress;
 import static com.yaerin.wadb.Utilities.getServicePort;
 import static com.yaerin.wadb.Utilities.isActivated;
-import static com.yaerin.wadb.Utilities.setWADBState;
+import static com.yaerin.wadb.Utilities.setWadbState;
 
 /**
  * Created by yaerin on 12/7/17.
@@ -28,7 +29,7 @@ import static com.yaerin.wadb.Utilities.setWADBState;
 
 public class MainActivity extends Activity {
 
-    private Switch mSwitch, mAutoRunSwitch;
+    private Switch mSwitch;
     private TextView mTextView;
 
     private StateReceiver mReceiver;
@@ -38,14 +39,16 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSwitch = findViewById(R.id.state);
-        mAutoRunSwitch = findViewById(R.id.autoRun);
         mTextView = findViewById(R.id.textView);
-        mSwitch.setOnClickListener(v -> {
-            if (setWADBState(mSwitch.isChecked()))
-                setChecked(mSwitch.isChecked());
+        mSwitch.setOnCheckedChangeListener((v, checked) -> {
+            if (setWadbState(checked)) {
+                setChecked(checked);
+            }
         });
-        mAutoRunSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-                configManager(MainActivity.this, CONFIG_KEY_AUTO_RUN, isChecked, false));
+        ((Switch) findViewById(R.id.autoRun)).setOnCheckedChangeListener((v, checked) -> {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            pref.edit().putBoolean(PREF_AUTO_RUN, checked).apply();
+        });
         mReceiver = new StateReceiver();
         registerReceiver(mReceiver, new IntentFilter(INTENT_ACTION_ADB_STATE));
     }
@@ -54,7 +57,6 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         setChecked(isActivated());
-        mAutoRunSwitch.setChecked(configManager(this, CONFIG_KEY_AUTO_RUN, false, true));
     }
 
     @Override

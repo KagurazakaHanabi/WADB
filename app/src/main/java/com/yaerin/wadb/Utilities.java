@@ -13,7 +13,7 @@ import static android.content.Context.WIFI_SERVICE;
 
 class Utilities {
 
-    static final String CONFIG_KEY_AUTO_RUN = "auto_run";
+    static final String PREF_AUTO_RUN = "auto_run";
     static final String INTENT_ACTION_ADB_STATE = "com.yaerin.intent.ADB_STATE";
 
     static boolean isActivated() {
@@ -52,17 +52,11 @@ class Utilities {
         return "5555";
     }
 
-    static boolean configManager(Context context, String key, boolean value, boolean isGet) {
-        File file = new File(context.getExternalFilesDir(null) + "/" + key);
-        if (isGet) return file.exists();
-        else return value ? file.mkdirs() : file.delete();
-    }
-
-    static boolean setWADBState(boolean isEnabled) {
+    static boolean setWadbState(boolean enabled) {
         try {
             Process proc = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(proc.getOutputStream());
-            if (isEnabled) {
+            if (enabled) {
                 os.writeBytes(String.format("setprop service.adb.tcp.port %s\n", getServicePort()));
             } else {
                 os.writeBytes("setprop service.adb.tcp.port -1\n");

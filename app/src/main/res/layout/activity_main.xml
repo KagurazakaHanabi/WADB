@@ -21,11 +21,14 @@
         android:id="@+id/autoRun"
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
-        android:background="@color/colorPrimary"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:text="@string/auto_run"
-        android:theme="@android:style/Theme.Material" />
+        android:text="@string/auto_run" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height=".5dp"
+        android:background="#1F000000" />
 
     <TextView
         android:id="@+id/textView"
