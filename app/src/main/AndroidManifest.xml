@@ -1,9 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yaerin.wadb"
-    android:versionCode="180518"
-    android:versionName="1.5">
+    android:versionCode="181227"
+    android:versionName="1.6">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
 
     <application
         android:allowBackup="false"
@@ -24,6 +26,13 @@
                 <action android:name="ACTION_QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".BootCompletedReceiver">
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".TileService"

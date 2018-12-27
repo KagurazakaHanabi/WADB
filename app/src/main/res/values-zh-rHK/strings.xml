@@ -10,4 +10,5 @@
     <string name="help_text">在電腦上運行下面的命令：\n\nadb connect %s:%s\nadb devices</string>
     <string name="ok">確定</string>
     <string name="donate">捐贈</string>
+    <string name="auto_run">開機自啟</string>
 </resources>

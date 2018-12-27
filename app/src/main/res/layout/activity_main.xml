@@ -17,6 +17,16 @@
         android:text="@string/disabled"
         android:theme="@android:style/Theme.Material" />
 
+    <Switch
+        android:id="@+id/autoRun"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:background="@color/colorPrimary"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/auto_run"
+        android:theme="@android:style/Theme.Material" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
