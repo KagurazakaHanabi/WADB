@@ -45,10 +45,9 @@ public class MainActivity extends Activity {
                 setChecked(checked);
             }
         });
-        ((Switch) findViewById(R.id.autoRun)).setOnCheckedChangeListener((v, checked) -> {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-            pref.edit().putBoolean(PREF_AUTO_RUN, checked).apply();
-        });
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        ((Switch) findViewById(R.id.autoRun)).setOnCheckedChangeListener((v, checked) -> pref.edit().putBoolean(PREF_AUTO_RUN, checked).apply());
+        ((Switch) findViewById(R.id.autoRun)).setChecked(pref.getBoolean(PREF_AUTO_RUN, false));
         mReceiver = new StateReceiver();
         registerReceiver(mReceiver, new IntentFilter(INTENT_ACTION_ADB_STATE));
     }

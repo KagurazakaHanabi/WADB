@@ -11,4 +11,5 @@
     <string name="ok">OK</string>
     <string name="donate">Donate</string>
     <string name="auto_run">Auto run</string>
+    <string name="adb_running">ADB network service is running…</string>
 </resources>
