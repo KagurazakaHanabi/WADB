@@ -10,11 +10,12 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import static com.yaerin.wadb.Utilities.INTENT_ACTION_ADB_STATE;
 import static com.yaerin.wadb.Utilities.PREF_AUTO_RUN;
@@ -32,7 +33,7 @@ public class MainActivity extends Activity {
     private Switch mSwitch;
     private TextView mTextView;
 
-    private StateReceiver mReceiver;
+    private StateReceiver mReceiver = new StateReceiver();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,16 +47,19 @@ public class MainActivity extends Activity {
             }
         });
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        ((Switch) findViewById(R.id.autoRun)).setOnCheckedChangeListener((v, checked) -> pref.edit().putBoolean(PREF_AUTO_RUN, checked).apply());
-        ((Switch) findViewById(R.id.autoRun)).setChecked(pref.getBoolean(PREF_AUTO_RUN, false));
-        mReceiver = new StateReceiver();
+        Switch autoRun = findViewById(R.id.autoRun);
+        autoRun.setOnCheckedChangeListener((v, checked) -> pref.edit().putBoolean(PREF_AUTO_RUN, checked).apply());
+        autoRun.setChecked(pref.getBoolean(PREF_AUTO_RUN, false));
         registerReceiver(mReceiver, new IntentFilter(INTENT_ACTION_ADB_STATE));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setChecked(isActivated());
+        new Thread(() -> {
+            boolean activated = isActivated();
+            runOnUiThread(() -> setChecked(activated));
+        }).start();
     }
 
     @Override
@@ -86,9 +90,9 @@ public class MainActivity extends Activity {
     private void setChecked(boolean checked) {
         mSwitch.setChecked(checked);
         mSwitch.setText(checked ? R.string.enabled : R.string.disabled);
-        mTextView.setText(checked ?
-                getString(R.string.help) + getString(R.string.help_text, getIpAddress(this), getServicePort()) :
-                getString(R.string.help)
+        mTextView.setText(checked
+                ? getString(R.string.help) + getString(R.string.help_text, getIpAddress(this), getServicePort())
+                : getString(R.string.help)
         );
     }
 

@@ -11,5 +11,5 @@
     <string name="ok">確定</string>
     <string name="donate">捐贈</string>
     <string name="auto_run">開機自啟</string>
-    <string name="adb_running">網絡ADB服務正在運行…</string>
+    <string name="adb_running">網路ADB調試已在 %s:%s 啓用</string>
 </resources>

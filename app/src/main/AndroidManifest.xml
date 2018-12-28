@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yaerin.wadb"
-    android:versionCode="181227"
-    android:versionName="1.6">
+    android:versionCode="181228"
+    android:versionName="1.7">
 
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
